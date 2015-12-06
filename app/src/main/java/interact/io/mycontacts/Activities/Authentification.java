@@ -1,9 +1,9 @@
 package interact.io.mycontacts.Activities;
 
-import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -18,26 +18,26 @@ import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import interact.io.mycontacts.Entities.User;
 import interact.io.mycontacts.R;
 import interact.io.mycontacts.Utils.AppController;
 
 public class Authentification extends AppCompatActivity {
+    public static final String REQUEST_TAG = "RequestAuth";
     private EditText usernameEditText;
     private EditText passwordEditText;
-    public static final String TAG="Authentification";
     public static final String urlAuth="https://api.mycontacts.io/v2/login";
+    public final  Context CONTEXT = this;
+    public static User user = new User();
+    Button loginBtn;
+    Button signinBtn;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_authentification);
-
-
-
         usernameEditText = (EditText) findViewById(R.id.username_login);
         passwordEditText = (EditText) findViewById(R.id.password_login);
         passwordEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -52,25 +52,30 @@ public class Authentification extends AppCompatActivity {
             }
         });
 
-        Button loginBtn = (Button) findViewById(R.id.action_button);
+        loginBtn = (Button) findViewById(R.id.action_button);
+        signinBtn = (Button) findViewById(R.id.action_button_signin);
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
         loginBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 login();
             }
         });
+    }
 
-        Button signinBtn = (Button) findViewById(R.id.action_button_signin);
-        signinBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //signin();
-            }
-        });
+    @Override
+    protected void onStop() {
+        super.onStop();
+        AppController.getInstance().cancelPendingRequests(REQUEST_TAG);
     }
 
     private void login() {
         final String username = usernameEditText.getText().toString().trim();
-        String password = passwordEditText.getText().toString().trim();
+        final String password = passwordEditText.getText().toString().trim();
 
         // Validate the log in data
         boolean validationError = false;
@@ -94,12 +99,7 @@ public class Authentification extends AppCompatActivity {
                     .show();
             return;
         }
-
-        // Set up a progress dialog
-        final ProgressDialog dialog = new ProgressDialog(Authentification.this);
-        dialog.setMessage(getString(R.string.progress_login));
-        dialog.show();
-        authMyContact(username,password);
+        getAuthVolley(CONTEXT,user,username,password);
     }
 
     private void signin(){
@@ -108,39 +108,76 @@ public class Authentification extends AppCompatActivity {
     }
 
 
-    void authMyContact(final String username , final String password){
-
+    public  void getAuthVolley(final Context context, final User user ,final String username,final String password){
+        JSONObject params = new JSONObject();
+        try {
+            params.put("username",username);
+            params.put("password", password);
+            params.put("client", "Apiary");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.POST,
-                urlAuth,
+                urlAuth,params ,
                 new Response.Listener<JSONObject>() {
-
                     @Override
                     public void onResponse(JSONObject response) {
-                        Log.d(TAG, response.toString());
-                        Toast.makeText(getApplicationContext(),"Login" + username+" "+response.toString(),Toast.LENGTH_LONG).show();
+                        JSONObject userObject = null;
+                        JSONObject tokenObject=null;
+                        try {
+                            userObject = new JSONObject(response.getString("user"));
+                            tokenObject = new JSONObject(response.getString("token"));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            try {
+                                String t = response.getString("message");
+                                if(t.trim().equals("login.user.not_found")){
+                                    Toast.makeText(context, "User Not Found", Toast.LENGTH_SHORT).show();
+                                }else {
+                                    Toast.makeText(context, "Wrong Password !", Toast.LENGTH_SHORT).show();
+                                }
+                            } catch (JSONException e1) {
+                                e1.printStackTrace();
+                            }
+                        }
+                        try {
+                            if (userObject != null) {
+                                user.setId(userObject.getString("id"));
+                                user.setUsername(userObject.getString("username"));
+                                user.setAccountStatus(userObject.getString("accountStatus"));
+                                user.setExpirationDate(userObject.getLong("expirationDate"));
+                                user.setEmail(userObject.getString("email"));
+                                user.setFirstName(userObject.getString("firstName"));
+                                user.setLastName(userObject.getString("lastName"));
+                                user.setPhoneNumber(userObject.getString("phoneNumber"));
+                                user.setTimeZone(userObject.getString("timeZone"));
+                                user.setOrganizationId(userObject.getString("organizationId"));
+                                user.setOrganizationName(userObject.getString("organizationName"));
+                                user.setSignupClient(userObject.getString("signupClient"));
+                                user.setDateCreated(userObject.getLong("dateCreated"));
+                                user.setActive(userObject.getBoolean("active"));
+                                user.setSignupClient(response.getString("firebaseAuthToken"));
+                            }
+                            if (tokenObject != null) {
+                                user.setSignupClient(tokenObject.getString("authToken"));
+                                user.setAuthTokenexpires(tokenObject.getLong("expires"));
+                            }
+                            Intent i = new Intent(CONTEXT,MainActivity.class);
+                            startActivity(i);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
                     }
                 }, new Response.ErrorListener() {
-
             @Override
             public void onErrorResponse(VolleyError error) {
-                VolleyLog.d(TAG, "Error: " + error.getMessage());
-                //pDialog.hide();
+                VolleyLog.d("", "Error: " + error.getMessage());
+                Toast.makeText(context, "onErrorResponse", Toast.LENGTH_SHORT).show();
+
             }
-        }) {
-
-            @Override
-            protected Map<String, String> getParams() {
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("username", username);
-                params.put("password", password);
-                params.put("client", "Apiary");
-
-                return params;
-            }
-
-        };
+        });
+        jsonObjReq.setTag(REQUEST_TAG);
         AppController.getInstance().addToRequestQueue(jsonObjReq);
     }
-
-
 }

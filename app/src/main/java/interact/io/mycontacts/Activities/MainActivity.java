@@ -18,6 +18,7 @@ import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 
+import interact.io.mycontacts.Entities.User;
 import interact.io.mycontacts.Fragments.HelloFragment;
 import interact.io.mycontacts.R;
 
@@ -36,14 +37,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        User u = Authentification.user;
         fg = getFragmentManager();
         ft = fg.beginTransaction().replace(R.id.container, new HelloFragment());
         ft.commit();
         new DrawerBuilder().withActivity(this).build();
 
 
-        final IProfile profile = new ProfileDrawerItem().withName("Elyes").withEmail("Elyes.bensalah@esprit.tn").withTextColorRes(R.color.md_black_1000).withIcon(Uri.parse("")).withIdentifier(100);
+        final IProfile profile = new ProfileDrawerItem().withName(u.getFirstName()).withEmail(u.getEmail()).withTextColorRes(R.color.md_black_1000).withIcon(Uri.parse("")).withIdentifier(100);
 
         AccountHeader headerResult = new AccountHeaderBuilder()
                 .withActivity(this)
