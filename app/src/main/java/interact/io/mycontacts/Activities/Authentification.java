@@ -1,5 +1,6 @@
 package interact.io.mycontacts.Activities;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,6 +13,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -20,6 +22,9 @@ import com.android.volley.toolbox.JsonObjectRequest;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import interact.io.mycontacts.Entities.User;
 import interact.io.mycontacts.R;
@@ -34,6 +39,7 @@ public class Authentification extends AppCompatActivity {
     public static User user = new User();
     Button loginBtn;
     Button signinBtn;
+    ProgressDialog pDialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -117,6 +123,9 @@ public class Authentification extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        pDialog = new ProgressDialog(this);
+        pDialog.setMessage("Loading...");
+        pDialog.show();
         JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.POST,
                 urlAuth,params ,
                 new Response.Listener<JSONObject>() {
@@ -130,6 +139,7 @@ public class Authentification extends AppCompatActivity {
                         } catch (JSONException e) {
                             e.printStackTrace();
                             try {
+                                pDialog.hide();
                                 String t = response.getString("message");
                                 if(t.trim().equals("login.user.not_found")){
                                     Toast.makeText(context, "User Not Found", Toast.LENGTH_SHORT).show();
@@ -162,21 +172,33 @@ public class Authentification extends AppCompatActivity {
                                 user.setSignupClient(tokenObject.getString("authToken"));
                                 user.setAuthTokenexpires(tokenObject.getLong("expires"));
                             }
-                            Intent i = new Intent(CONTEXT,MainActivity.class);
-                            startActivity(i);
+                            pDialog.hide();
+                            if(user.getId()!=null){
+                                Intent i = new Intent(CONTEXT,MainActivity.class);
+                                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                startActivity(i);
+                            }
                         } catch (Exception e) {
                             e.printStackTrace();
+                            pDialog.hide();
                         }
-
                     }
                 }, new Response.ErrorListener() {
+
             @Override
             public void onErrorResponse(VolleyError error) {
                 VolleyLog.d("", "Error: " + error.getMessage());
                 Toast.makeText(context, "onErrorResponse", Toast.LENGTH_SHORT).show();
-
+                pDialog.hide();
             }
-        });
+        }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                HashMap<String, String> params = new HashMap<String, String>();
+                params.put("authToken", user.getAuthToken());
+                return params;
+            }
+        };
         jsonObjReq.setTag(REQUEST_TAG);
         AppController.getInstance().addToRequestQueue(jsonObjReq);
     }

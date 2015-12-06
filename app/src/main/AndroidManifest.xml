@@ -17,6 +17,7 @@
             android:theme="@style/MaterialDrawerTheme.Light"></activity>
         <activity
             android:name=".Activities.SplashScreen"
+            android:noHistory="true"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -26,6 +27,7 @@
         </activity>
         <activity
             android:name=".Activities.Authentification"
+            android:noHistory="true"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
         <activity
