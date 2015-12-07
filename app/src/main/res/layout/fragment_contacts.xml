@@ -1,0 +1,18 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="interact.io.mycontacts.Fragments.ContactsFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+    <it.gmariotti.cardslib.library.view.CardListView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/contactsList"/>
+    <TextView
+        android:id="@+id/contacts"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="" />
+
+</RelativeLayout>

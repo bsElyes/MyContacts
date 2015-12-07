@@ -3,18 +3,21 @@ package interact.io.mycontacts.Activities;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.VolleyLog;
-import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
@@ -25,10 +28,11 @@ import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 
-import org.json.JSONObject;
+import java.util.HashMap;
+import java.util.Map;
 
 import interact.io.mycontacts.Entities.User;
-import interact.io.mycontacts.Fragments.HelloFragment;
+import interact.io.mycontacts.Fragments.ContactsFragment;
 import interact.io.mycontacts.R;
 import interact.io.mycontacts.Utils.AppController;
 
@@ -40,16 +44,42 @@ public class MainActivity extends AppCompatActivity {
     PrimaryDrawerItem item5 = new PrimaryDrawerItem().withName("Logout").withIcon(R.drawable.ico_about).withIdentifier(5);
 
     public Drawer shDrawer;
-
     ProgressDialog pDialog;
 
     //Fragment
     FragmentManager fg;
     FragmentTransaction ft;
+    public final Context CONTEXT_MAIN= this;
 
     @Override
     public void onBackPressed() {
-        Toast.makeText(this , "NO WAY YOU CAN'T LEAVE !", Toast.LENGTH_SHORT).show();
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Quit MyContacts");
+        builder.setIcon(R.mipmap.ic_launcher);
+        builder.setMessage("Do you want to quit the application !");
+        builder.setPositiveButton("Accept", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                supportFinishAfterTransition();
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        //fg = getFragmentManager();
+        //ft = fg.beginTransaction().replace(R.id.container, new HelloFragment());
+        //ft.commit();
     }
 
     @Override
@@ -57,9 +87,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         User u = Authentification.user;
-        fg = getFragmentManager();
-        ft = fg.beginTransaction().replace(R.id.container, new HelloFragment());
-        ft.commit();
         new DrawerBuilder().withActivity(this).build();
 
 
@@ -91,7 +118,9 @@ public class MainActivity extends AppCompatActivity {
                     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
                         switch (drawerItem.getIdentifier()){
                             case 1:{
-                                Toast.makeText(getApplicationContext(), "In Progress...", Toast.LENGTH_LONG).show();
+                                fg = getFragmentManager();
+                                ft = fg.beginTransaction().replace(R.id.container, new ContactsFragment());
+                                ft.commit();
                                 shDrawer.closeDrawer();
                             }break;
                             case 2:{
@@ -107,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
                                 shDrawer.closeDrawer();
                             }break;
                             case 5:{
-                                Logout();
+                                Logout(CONTEXT_MAIN);
                                 shDrawer.closeDrawer();
                             }break;
 
@@ -120,34 +149,43 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void Logout() {
+    private void Logout(Context context) {
         String url = "https://api.mycontacts.io/v2/logout";
 
-        pDialog = new ProgressDialog(this);
+        pDialog = new ProgressDialog(context);
         pDialog.setMessage("Loading...");
         pDialog.show();
 
-        JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.POST,
-                url, null,
-                new Response.Listener<JSONObject>() {
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String s) {
+                Intent i = new Intent(MainActivity.this,Authentification.class);
+                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(i);
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                Toast.makeText(MainActivity.this, "onErrorResponse "+volleyError.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        }){
 
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        Log.d("", response.toString());
-                        pDialog.hide();
-                    }
-                }, new Response.ErrorListener() {
 
             @Override
-            public void onErrorResponse(VolleyError error) {
-                VolleyLog.d("", "Error: " + error.getMessage());
-                // hide the progress dialog
-                pDialog.hide();
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map params = new HashMap();
+                params.put("authToken", Authentification.user.getAuthToken());
+                return params;
             }
-        });
 
-        // Adding request to request queue
-        AppController.getInstance().addToRequestQueue(jsonObjReq);
+            @Override
+            public String getBodyContentType() {
+                return "application/json";
+            }
+        };
+
+        AppController.getInstance().cancelPendingRequests(AppController.class);
+        AppController.getInstance().addToRequestQueue(stringRequest);
 
     }
 

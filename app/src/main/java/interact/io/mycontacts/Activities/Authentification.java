@@ -13,7 +13,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -22,9 +21,6 @@ import com.android.volley.toolbox.JsonObjectRequest;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import interact.io.mycontacts.Entities.User;
 import interact.io.mycontacts.R;
@@ -126,7 +122,7 @@ public class Authentification extends AppCompatActivity {
         pDialog = new ProgressDialog(this);
         pDialog.setMessage("Loading...");
         pDialog.show();
-        JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.POST,
+        JsonObjectRequest auth = new JsonObjectRequest(Request.Method.POST,
                 urlAuth,params ,
                 new Response.Listener<JSONObject>() {
                     @Override
@@ -139,7 +135,7 @@ public class Authentification extends AppCompatActivity {
                         } catch (JSONException e) {
                             e.printStackTrace();
                             try {
-                                pDialog.hide();
+                                pDialog.dismiss();
                                 String t = response.getString("message");
                                 if(t.trim().equals("login.user.not_found")){
                                     Toast.makeText(context, "User Not Found", Toast.LENGTH_SHORT).show();
@@ -166,21 +162,21 @@ public class Authentification extends AppCompatActivity {
                                 user.setSignupClient(userObject.getString("signupClient"));
                                 user.setDateCreated(userObject.getLong("dateCreated"));
                                 user.setActive(userObject.getBoolean("active"));
-                                user.setSignupClient(response.getString("firebaseAuthToken"));
+                                user.setFirebaseAuthToken(response.getString("firebaseAuthToken"));
                             }
                             if (tokenObject != null) {
-                                user.setSignupClient(tokenObject.getString("authToken"));
+                                user.setAuthToken(tokenObject.getString("authToken"));
                                 user.setAuthTokenexpires(tokenObject.getLong("expires"));
                             }
-                            pDialog.hide();
+                            pDialog.dismiss();
                             if(user.getId()!=null){
                                 Intent i = new Intent(CONTEXT,MainActivity.class);
-                                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                 startActivity(i);
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
-                            pDialog.hide();
+                            pDialog.dismiss();
                         }
                     }
                 }, new Response.ErrorListener() {
@@ -189,17 +185,11 @@ public class Authentification extends AppCompatActivity {
             public void onErrorResponse(VolleyError error) {
                 VolleyLog.d("", "Error: " + error.getMessage());
                 Toast.makeText(context, "onErrorResponse", Toast.LENGTH_SHORT).show();
-                pDialog.hide();
+                pDialog.dismiss();
             }
-        }){
-            @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                HashMap<String, String> params = new HashMap<String, String>();
-                params.put("authToken", user.getAuthToken());
-                return params;
-            }
-        };
-        jsonObjReq.setTag(REQUEST_TAG);
-        AppController.getInstance().addToRequestQueue(jsonObjReq);
+        });
+        AppController.getInstance().addToRequestQueue(auth);
     }
+
+
 }

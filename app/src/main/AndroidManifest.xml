@@ -14,6 +14,8 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".Activities.MainActivity"
+            android:noHistory="true"
+            android:launchMode = "singleInstance"
             android:theme="@style/MaterialDrawerTheme.Light"></activity>
         <activity
             android:name=".Activities.SplashScreen"
