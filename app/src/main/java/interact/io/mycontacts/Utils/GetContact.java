@@ -19,12 +19,23 @@ public class GetContact {
     public static Contact getContact(JSONObject jsonObject){
         Contact c = new Contact();
         try {
-            JSONArray emailsArray = jsonObject.getJSONArray("emails");
-            JSONArray phonesArray = jsonObject.getJSONArray("phoneNumbers");
             c.setDisplayName(jsonObject.getString("displayName"));
             c.setProfilePicture(jsonObject.getString("profilePicture"));
-            c.setListEmails(getEmails(emailsArray));
-            c.setListPhones(getPhones(phonesArray));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        try {
+            JSONArray phonesArray = jsonObject.getJSONArray("phoneNumbers");
+            if(phonesArray !=null)
+                c.setListPhones(getPhones(phonesArray));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        try {
+            JSONArray emailsArray = jsonObject.getJSONArray("emails");
+            if(emailsArray !=null)
+                c.setListEmails(getEmails(emailsArray));
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
