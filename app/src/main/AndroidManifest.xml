@@ -5,6 +5,9 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_CALL_LOG" />
+    <uses-permission android:name="android.permission.READ_SMS" />
+
+    <uses-permission android:name="android.permission.GET_TASKS" />
 
 
     <application
@@ -39,6 +42,15 @@
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
 
         </activity>
+
+        <receiver android:name=".Services.StartupReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="StartupReceiver_Manual_Start" />
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name = ".Services.CheckRunningApplicationReceiver"/>
     </application>
 
 </manifest>

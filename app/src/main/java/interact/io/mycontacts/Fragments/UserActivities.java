@@ -3,8 +3,10 @@ package interact.io.mycontacts.Fragments;
 
 import android.app.Fragment;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.CallLog;
+import android.provider.Telephony;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,7 +33,7 @@ public class UserActivities extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_user_activities, container, false);
        TextView textView = (TextView)v.findViewById(R.id.userActivities);
-        textView.setText(getCallDetails());
+        textView.setText(getCallDetails()+"\n"+getSMSDetails());
         return v;
     }
     private String getCallDetails() {
@@ -73,4 +75,54 @@ public class UserActivities extends Fragment {
         managedCursor.close();
         return sb.toString();
     }
+
+    private String getSMSDetails() {
+        StringBuffer stringBuffer = new StringBuffer();
+        stringBuffer.append("*********SMS History*************** :");
+        Uri uri = Uri.parse("content://sms");
+        Cursor cursor = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+            cursor = getActivity().getContentResolver().query(Telephony.Sms.CONTENT_URI, null, null, null, null);
+        }
+
+        if (cursor.moveToFirst()) {
+            for (int i = 0; i < cursor.getCount(); i++) {
+                String body = cursor.getString(cursor.getColumnIndexOrThrow("body"))
+                        .toString();
+                String number = cursor.getString(cursor.getColumnIndexOrThrow("address"))
+                        .toString();
+                String date = cursor.getString(cursor.getColumnIndexOrThrow("date"))
+                        .toString();
+                Date smsDayTime = new Date(Long.valueOf(date));
+                String type = cursor.getString(cursor.getColumnIndexOrThrow("type"))
+                        .toString();
+                String typeOfSMS = null;
+                switch (Integer.parseInt(type)) {
+                    case 1:
+                        typeOfSMS = "INBOX";
+                        break;
+
+                    case 2:
+                        typeOfSMS = "SENT";
+                        break;
+
+                    case 3:
+                        typeOfSMS = "DRAFT";
+                        break;
+                }
+
+                stringBuffer.append("\nPhone Number:--- " + number + " \nMessage Type:--- "
+                        + typeOfSMS + " \nMessage Date:--- " + smsDayTime
+                        + " \nMessage Body:--- " + body);
+                stringBuffer.append("\n----------------------------------");
+                cursor.moveToNext();
+            }
+        }
+        cursor.close();
+        return stringBuffer.toString();
+    }
+
 }
+
+
+

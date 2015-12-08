@@ -150,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
                 .withAccountHeader(headerResult)
                 .build();
         shDrawer.openDrawer();
-
+        initialize();
 
     }
 
@@ -194,5 +194,11 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void initialize() {
 
+        // Start receiver with the name StartupReceiver_Manual_Start
+        // Check AndroidManifest.xml file
+        getBaseContext().getApplicationContext().sendBroadcast(
+                new Intent("StartupReceiver_Manual_Start"));
+    }
 }
