@@ -33,6 +33,7 @@ import java.util.Map;
 
 import interact.io.mycontacts.Entities.User;
 import interact.io.mycontacts.Fragments.ContactsFragment;
+import interact.io.mycontacts.Fragments.UserActivities;
 import interact.io.mycontacts.R;
 import interact.io.mycontacts.Utils.AppController;
 
@@ -88,7 +89,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         User u = Authentification.user;
         new DrawerBuilder().withActivity(this).build();
-        shDrawer.openDrawer();
 
 
         final IProfile profile = new ProfileDrawerItem().withName(u.getFirstName()).withEmail(u.getEmail()).withTextColorRes(R.color.md_black_1000).withIcon(Uri.parse("")).withIdentifier(100);
@@ -125,7 +125,9 @@ public class MainActivity extends AppCompatActivity {
                                 shDrawer.closeDrawer();
                             }break;
                             case 2:{
-                                Toast.makeText(getApplicationContext(), "In Progress...", Toast.LENGTH_LONG).show();
+                                fg = getFragmentManager();
+                                ft = fg.beginTransaction().replace(R.id.container, new UserActivities());
+                                ft.commit();
                                 shDrawer.closeDrawer();
                             }break;
                             case 3:{
@@ -147,6 +149,8 @@ public class MainActivity extends AppCompatActivity {
                 })
                 .withAccountHeader(headerResult)
                 .build();
+        shDrawer.openDrawer();
+
 
     }
 
