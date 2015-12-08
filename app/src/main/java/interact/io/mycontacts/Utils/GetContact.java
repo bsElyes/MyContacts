@@ -21,6 +21,8 @@ public class GetContact {
         try {
             c.setDisplayName(jsonObject.getString("displayName"));
             c.setProfilePicture(jsonObject.getString("profilePicture"));
+            c.setFirstName(jsonObject.getString("firstName"));
+            c.setLastName(jsonObject.getString("lastName"));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -29,7 +31,7 @@ public class GetContact {
             if(phonesArray !=null)
                 c.setListPhones(getPhones(phonesArray));
         } catch (JSONException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
         try {
             JSONArray emailsArray = jsonObject.getJSONArray("emails");
@@ -37,7 +39,7 @@ public class GetContact {
                 c.setListEmails(getEmails(emailsArray));
 
         } catch (JSONException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
 
         return c;

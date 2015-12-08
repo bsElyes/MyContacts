@@ -4,7 +4,6 @@
     android:layout_height="match_parent"
     tools:context="interact.io.mycontacts.Fragments.ContactsFragment">
 
-    <!-- TODO: Update blank fragment layout -->
     <it.gmariotti.cardslib.library.view.CardListView
         android:layout_width="match_parent"
         android:layout_height="match_parent"

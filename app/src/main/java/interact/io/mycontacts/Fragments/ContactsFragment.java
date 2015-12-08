@@ -31,6 +31,9 @@ import interact.io.mycontacts.R;
 import interact.io.mycontacts.Utils.AppController;
 import interact.io.mycontacts.Utils.GetContact;
 import it.gmariotti.cardslib.library.internal.Card;
+import it.gmariotti.cardslib.library.internal.CardArrayAdapter;
+import it.gmariotti.cardslib.library.internal.CardHeader;
+import it.gmariotti.cardslib.library.view.CardListView;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -64,10 +67,10 @@ public class ContactsFragment extends Fragment {
         getContacts(getActivity(),textView);
     }
 
-    private void getContacts(Context c ,final TextView textView) {
+    private void getContacts(final Context context ,final TextView textView) {
         String url = "https://api.mycontacts.io/v2/contacts?&offset=0&limit=20";
-        pDialog = new ProgressDialog(c);
-        pDialog.setMessage("Loading...");
+        pDialog = new ProgressDialog(context);
+        pDialog.setMessage("Loading Contacts...");
         pDialog.show();
 
         JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.GET, url,null, new Response.Listener<JSONObject>() {
@@ -80,8 +83,20 @@ public class ContactsFragment extends Fragment {
                         JSONObject contactObject = (JSONObject) contactsArray.get(i);
                         Contact c = GetContact.getContact(contactObject);
                         contacts.add(c);
+
+                        //Create ContactCard
+                        Card card = new Card(context);
+                        CardHeader header = new CardHeader(context);
+                        header.setTitle(c.getDisplayName());
+                        card.addCardHeader(header);
+                        cards.add(card);
                     }
-                    textView.setText(contacts.toString());
+                    CardArrayAdapter mCardArrayAdapter = new CardArrayAdapter(getActivity(),cards);
+                    CardListView listView = (CardListView) getActivity().findViewById(R.id.contactsList);
+                    if (listView!=null){
+                        listView.setAdapter(mCardArrayAdapter);
+                    }
+                    //textView.setText(contacts.toString());
                     Toast.makeText(getActivity(), "OK ", Toast.LENGTH_SHORT).show();
                     pDialog.dismiss();
 

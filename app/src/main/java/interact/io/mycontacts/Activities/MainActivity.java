@@ -88,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         User u = Authentification.user;
         new DrawerBuilder().withActivity(this).build();
+        shDrawer.openDrawer();
 
 
         final IProfile profile = new ProfileDrawerItem().withName(u.getFirstName()).withEmail(u.getEmail()).withTextColorRes(R.color.md_black_1000).withIcon(Uri.parse("")).withIdentifier(100);
