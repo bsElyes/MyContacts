@@ -6,9 +6,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_CALL_LOG" />
     <uses-permission android:name="android.permission.READ_SMS" />
-
     <uses-permission android:name="android.permission.GET_TASKS" />
-
 
     <application
         android:name=".Utils.AppController"
@@ -19,9 +17,9 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".Activities.MainActivity"
+            android:launchMode="singleInstance"
             android:noHistory="true"
-            android:launchMode = "singleInstance"
-            android:theme="@style/MaterialDrawerTheme.Light"></activity>
+            android:theme="@style/MaterialDrawerTheme.Light.TranslucentStatus" />
         <activity
             android:name=".Activities.SplashScreen"
             android:noHistory="true"
@@ -36,12 +34,9 @@
             android:name=".Activities.Authentification"
             android:noHistory="true"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
-
         <activity
             android:name=".Tests.getAuth"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-
-        </activity>
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
         <receiver android:name=".Services.StartupReceiver">
             <intent-filter>
@@ -49,8 +44,9 @@
                 <action android:name="StartupReceiver_Manual_Start" />
             </intent-filter>
         </receiver>
+        <receiver android:name=".Services.CheckRunningApplicationReceiver" />
 
-        <receiver android:name = ".Services.CheckRunningApplicationReceiver"/>
+        <activity android:name=".Activities.MakeCall"></activity>
     </application>
 
 </manifest>

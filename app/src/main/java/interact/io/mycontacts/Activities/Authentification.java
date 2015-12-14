@@ -3,6 +3,7 @@ package interact.io.mycontacts.Activities;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
@@ -28,6 +29,8 @@ import interact.io.mycontacts.Utils.AppController;
 
 public class Authentification extends AppCompatActivity {
     public static final String REQUEST_TAG = "RequestAuth";
+    public static String MyPREFERENCES = "MyContactPref";
+
     private EditText usernameEditText;
     private EditText passwordEditText;
     public static final String urlAuth="https://api.mycontacts.io/v2/login";
@@ -36,11 +39,18 @@ public class Authentification extends AppCompatActivity {
     Button loginBtn;
     Button signinBtn;
     ProgressDialog pDialog;
+    SharedPreferences contactsPref;
+    SharedPreferences.Editor editor;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_authentification);
+
+        contactsPref = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+        editor = contactsPref.edit();
+
         usernameEditText = (EditText) findViewById(R.id.username_login);
+        usernameEditText.setText(contactsPref.getString("LastLogin",""));
         passwordEditText = (EditText) findViewById(R.id.password_login);
         passwordEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -171,6 +181,8 @@ public class Authentification extends AppCompatActivity {
                             pDialog.dismiss();
                             if(user.getId()!=null){
                                 Intent i = new Intent(CONTEXT,MainActivity.class);
+                                editor.putString("LastLogin",user.getEmail());
+                                editor.commit();
                                 i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                 startActivity(i);
                             }

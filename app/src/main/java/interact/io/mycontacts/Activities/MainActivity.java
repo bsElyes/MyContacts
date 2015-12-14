@@ -3,13 +3,20 @@ package interact.io.mycontacts.Activities;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -83,14 +90,42 @@ public class MainActivity extends AppCompatActivity {
         //ft.commit();
     }
 
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.menu_main, menu);
+
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+
+        SearchManager searchManager = (SearchManager) MainActivity.this.getSystemService(Context.SEARCH_SERVICE);
+
+        SearchView searchView = null;
+        if (searchItem != null) {
+            searchView = (SearchView) searchItem.getActionView();
+        }
+        if (searchView != null) {
+            searchView.setSearchableInfo(searchManager.getSearchableInfo(MainActivity.this.getComponentName()));
+        }
+        return super.onCreateOptionsMenu(menu);
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.content_main);
         User u = Authentification.user;
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
         new DrawerBuilder().withActivity(this).build();
 
-
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //Snackbar.make(view, "Make a Call in Progress...", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+                Intent i=  new Intent(MainActivity.this,MakeCall.class);
+                startActivity(i);
+            }
+        });
         final IProfile profile = new ProfileDrawerItem().withName(u.getFirstName()).withEmail(u.getEmail()).withTextColorRes(R.color.md_black_1000).withIcon(Uri.parse("")).withIdentifier(100);
 
         AccountHeader headerResult = new AccountHeaderBuilder()
@@ -201,4 +236,5 @@ public class MainActivity extends AppCompatActivity {
         getBaseContext().getApplicationContext().sendBroadcast(
                 new Intent("StartupReceiver_Manual_Start"));
     }
+
 }

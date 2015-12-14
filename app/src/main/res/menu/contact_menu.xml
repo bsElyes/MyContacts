@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/contact_call"
+        android:title="Call"
+        android:orderInCategory="100"
+        android:icon="@drawable/header_call_selected"
+        app:showAsAction="always" />
+
+    <item android:id="@+id/contact_sms"
+        android:title="Send SMS"
+        android:orderInCategory="101"
+        android:icon="@drawable/header_sms_selected"
+        app:showAsAction="always" />
+
+
+    <item android:id="@+id/contact_note"
+        android:title="Add Note"
+        android:orderInCategory="102"
+        android:icon="@drawable/plus_orange"
+        app:showAsAction="always" />
+</menu>

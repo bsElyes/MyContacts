@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorPrimary">#ed7217</color>
+    <color name="colorPrimaryDark">#d56615</color>
     <color name="colorAccent">#FF4081</color>
+    <color name="mycontact_bg">#d56615</color>
+    <color name="mycontact">#ed7217</color>
 </resources>

@@ -8,11 +8,11 @@ import android.support.v7.app.AppCompatActivity;
 import interact.io.mycontacts.R;
 
 public class SplashScreen extends AppCompatActivity {
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash_screen);
+
         //Sleep(:P)
         Handler handler=new Handler();
         handler.postDelayed(new Runnable() {

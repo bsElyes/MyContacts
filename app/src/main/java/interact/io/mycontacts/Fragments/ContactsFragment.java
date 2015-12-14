@@ -5,11 +5,15 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.amulyakhare.textdrawable.TextDrawable;
+import com.amulyakhare.textdrawable.util.ColorGenerator;
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -33,6 +37,8 @@ import interact.io.mycontacts.Utils.GetContact;
 import it.gmariotti.cardslib.library.internal.Card;
 import it.gmariotti.cardslib.library.internal.CardArrayAdapter;
 import it.gmariotti.cardslib.library.internal.CardHeader;
+import it.gmariotti.cardslib.library.internal.CardThumbnail;
+import it.gmariotti.cardslib.library.internal.base.BaseCard;
 import it.gmariotti.cardslib.library.view.CardListView;
 
 /**
@@ -87,7 +93,37 @@ public class ContactsFragment extends Fragment {
                         //Create ContactCard
                         Card card = new Card(context);
                         CardHeader header = new CardHeader(context);
+
+
+                        if(c.getProfilePicture()==null){
+                            ColorGenerator generator = ColorGenerator.MATERIAL; // or use DEFAULT
+                            int color1 = generator.getRandomColor();
+                            String ch=""+c.getFirstName().charAt(0)+c.getLastName().charAt(0);
+                            TextDrawable textDrawable = TextDrawable.builder().buildRound(ch, color1);
+                            ContactThumbnail thumb = new ContactThumbnail(getActivity(),textDrawable);
+                            thumb.setExternalUsage(true);
+                            card.addCardThumbnail(thumb);
+                        }
+                        CardThumbnail thumb = new CardThumbnail(getActivity());
+                        thumb.setUrlResource(c.getProfilePicture());
+                        card.addCardThumbnail(thumb);
                         header.setTitle(c.getDisplayName());
+                        header.setPopupMenu(R.menu.contact_menu, new CardHeader.OnClickCardHeaderPopupMenuListener() {
+                            @Override
+                            public void onMenuItemClick(BaseCard card, MenuItem item) {
+                                switch (item.getItemId()){
+                                    case R.id.contact_call :{
+                                        Toast.makeText(getActivity(), "CALL", Toast.LENGTH_SHORT).show();
+                                    }break;
+                                    case R.id.contact_sms : {
+                                        Toast.makeText(getActivity(), "Send SMS", Toast.LENGTH_SHORT).show();
+                                    }break;
+                                    case R.id.contact_note:{
+                                        Toast.makeText(getActivity(), "Add Note", Toast.LENGTH_SHORT).show();
+                                    }break;
+                                }
+                            }
+                        });
                         card.addCardHeader(header);
                         cards.add(card);
                     }
@@ -142,6 +178,23 @@ public class ContactsFragment extends Fragment {
 
     }
 
+   public class ContactThumbnail extends CardThumbnail{
+        TextDrawable textDrawable;
+       public ContactThumbnail(Context context , TextDrawable txB ) {
+           super(context);
+           this.textDrawable=txB;
+       }
 
+       public ContactThumbnail(Context context, int innerLayout) {
+           super(context, innerLayout);
+       }
+
+       @Override
+       public void setupInnerViewElements(ViewGroup parent, View viewImage) {
+
+           ImageView image= (ImageView)viewImage ;
+            image.setImageDrawable(textDrawable);
+       }
+   }
 
 }

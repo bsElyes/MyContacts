@@ -1,5 +1,6 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:card="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="interact.io.mycontacts.Fragments.ContactsFragment">
@@ -7,7 +8,8 @@
     <it.gmariotti.cardslib.library.view.CardListView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/contactsList"/>
+        android:id="@+id/contactsList"
+        card:list_card_layout_resourceID="@layout/native_list_card_thumbnail_layout"/>
     <TextView
         android:id="@+id/contacts"
         android:layout_width="match_parent"
